@@ -1,4 +1,4 @@
-# Nazwa kursu: Testowanie i Jakość Oprogramowania
+# Testowanie i Jakość Oprogramowania II 
 
 ## Autor
 **Adrian Kowal**
@@ -31,7 +31,7 @@ Projekt jest w pełni skonteneryzowany. Wymagane jest środowisko **Docker Deskt
     [http://localhost:5001](http://localhost:5001)
 
 ## Testy
-*(Ta sekcja zostanie uzupełniona w II etapie projektu. Planowane jest pokrycie testami jednostkowymi, integracyjnymi oraz manualnymi.)*
+*(Ta sekcja zostanie uzupełniona w II etapie projektu)*
 
 ## Dokumentacja API
 Dokumentacja endpointów (**Swagger/OpenAPI**) jest generowana automatycznie i dostępna po uruchomieniu projektu pod adresem:
