@@ -176,7 +176,7 @@ router.post('/', protect, upload.array('files'), async (req, res) => {
     }
 
     await connection.commit();
-    res.status(201).json({ success: true, message: 'Lekcja utworzona' });
+    res.status(201).json({ success: true, message: 'Lekcja utworzona', id: lessonId });
   } catch (error) {
     await connection.rollback();
     console.error("Błąd tworzenia lekcji:", error);
@@ -234,6 +234,8 @@ router.put('/:id', protect, async (req, res) => {
   const { title, description, duration_minutes, is_visible } = req.body;
 
   try {
+    const v = (val) => (val === undefined ? null : val);
+
     await dbPool.execute(
       `UPDATE Lessons SET 
         title = COALESCE(?, title), 
@@ -241,7 +243,7 @@ router.put('/:id', protect, async (req, res) => {
         duration_minutes = COALESCE(?, duration_minutes),
         is_visible = COALESCE(?, is_visible)
       WHERE lesson_id = ?`,
-      [title, description, duration_minutes, is_visible, req.params.id]
+      [v(title), v(description), v(duration_minutes), v(is_visible), req.params.id]
     );
 
     res.json({ success: true, message: "Zaktualizowano lekcję" });

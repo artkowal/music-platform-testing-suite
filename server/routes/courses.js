@@ -99,10 +99,8 @@ router.get('/', protect, async (req, res) => {
  *         description: Kurs utworzony
  */
 router.post('/', protect, async (req, res) => {
-  if (req.user.role !== 'teacher') {
-    return res.status(403).json({ message: 'Brak uprawnień.' });
-  }
-
+  if (req.user.role !== 'teacher') return res.status(403).json({ message: 'Brak uprawnień.' });
+  
   const { title, description, workplace_id, course_type, student_emails } = req.body;
 
   if (!title || !course_type) {
@@ -115,44 +113,33 @@ router.post('/', protect, async (req, res) => {
     await connection.beginTransaction();
 
     const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-    // Tworzenie kursu
+    
     const [result] = await connection.execute(
-      `INSERT INTO Courses (teacher_id, workplace_id, title, description, course_type, invite_code)
+      `INSERT INTO Courses (teacher_id, workplace_id, title, description, course_type, invite_code) 
        VALUES (?, ?, ?, ?, ?, ?)`,
       [req.user.user_id, workplace_id || null, title, description, course_type, inviteCode]
     );
 
     const courseId = result.insertId;
 
-    // Dodawanie uczniów
     if (student_emails && Array.isArray(student_emails) && student_emails.length > 0) {
-      const cleanEmails = student_emails
-        .map((e) => e.trim())
-        .filter((e) => e.length > 0);
-
-      if (cleanEmails.length > 0) {
-        const placeholders = cleanEmails.map(() => '?').join(',');
-
-        const [students] = await connection.execute(
-          `SELECT user_id, email FROM Users WHERE role = 'student' AND email IN (${placeholders})`,
-          cleanEmails
-        );
-
-        for (const student of students) {
+      for (const email of student_emails) {
+        const [users] = await connection.execute('SELECT user_id FROM Users WHERE email = ?', [email]);
+        if (users.length > 0) {
           await connection.execute(
-            'INSERT IGNORE INTO Enrollments (student_id, course_id) VALUES (?, ?)',
-            [student.user_id, courseId]
+            'INSERT IGNORE INTO Enrollments (course_id, student_id) VALUES (?, ?)',
+            [courseId, users[0].user_id]
           );
         }
       }
     }
 
     await connection.commit();
-    res.status(201).json({ success: true, message: 'Kurs utworzony.' });
+    res.status(201).json({ success: true, message: 'Kurs utworzony.', id: courseId });
+
   } catch (error) {
     await connection.rollback();
-    console.error('Błąd tworzenia kursu:', error);
+    console.error("Błąd tworzenia kursu:", error);
     res.status(500).json({ message: 'Błąd podczas tworzenia kursu.' });
   } finally {
     connection.release();
@@ -230,26 +217,30 @@ router.delete('/:id', protect, async (req, res) => {
 router.put('/:id', protect, async (req, res) => {
   if (req.user.role !== 'teacher') return res.status(403).json({ message: 'Brak uprawnień.' });
 
-  const { title, workplace_id, description, course_type } = req.body;
+  const { title, description, workplace_id, course_type } = req.body;
 
-  await dbPool.execute(
-    `UPDATE Courses
-     SET title = COALESCE(?, title),
-         workplace_id = ?, 
-         description = COALESCE(?, description),
-         course_type = COALESCE(?, course_type)
-     WHERE course_id = ? AND teacher_id = ?`,
-    [
-      title,
-      workplace_id === null ? null : workplace_id,
-      description,
-      course_type,
-      req.params.id,
-      req.user.user_id,
-    ]
-  );
+  try {
+    const v = (val) => (val === undefined ? null : val);
 
-  res.json({ success: true, message: 'Kurs zaktualizowany.' });
+    const [result] = await dbPool.execute(
+      `UPDATE Courses SET 
+        title = COALESCE(?, title),
+        description = COALESCE(?, description),
+        workplace_id = COALESCE(?, workplace_id),
+        course_type = COALESCE(?, course_type)
+       WHERE course_id = ? AND teacher_id = ?`,
+      [v(title), v(description), v(workplace_id), v(course_type), req.params.id, req.user.user_id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Nie znaleziono kursu.' });
+    }
+
+    res.json({ success: true, message: 'Kurs zaktualizowany.' });
+  } catch (error) {
+    console.error("Błąd edycji kursu:", error);
+    res.status(500).json({ message: 'Błąd serwera.' });
+  }
 });
 
 /**

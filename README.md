@@ -37,7 +37,6 @@ Projekt jest w pełni skonteneryzowany. Wymagane jest środowisko **Docker Deskt
 #### 1. Algorytmy i Funkcje Pomocnicze (Helpers)
 * 📄 **[`colors.test.ts`](./client/src/lib/colors.test.ts)**
     * **Opis:** Weryfikacja czystych funkcji (Pure Functions) odpowiedzialnych za konwersję kolorów (Hex → HSL/RGBA).
-    * **Pokrycie:** Happy Path, Edge Cases (biel/czerń).
 
 #### 2. Logika Biznesowa (Core Domain)
 * 📄 **[`LessonTimer.test.ts`](./client/src/pages/dashboard/dashboardLessonPage/components/LessonTimer.test.ts)**
@@ -51,15 +50,29 @@ Projekt jest w pełni skonteneryzowany. Wymagane jest środowisko **Docker Deskt
 * 📄 **[`badge.test.tsx`](./client/src/components/ui/badge.test.tsx)**
     * **Opis:** Testy warstwy prezentacyjnej i logiki warunkowej.
 
+### Testy Integracyjne (API Integration Tests)
+
+* 📄 **[`workplaces.test.js`](./server/tests/workplaces.test.js)**
+    * **Opis:** Pełny cykl życia placówki (CRUD). Weryfikacja tworzenia, pobierania listy, edycji i usuwania zasobów.
+* 📄 **[`courses.test.js`](./server/tests/courses.test.js)**
+    * **Opis:** Zarządzanie kursami i logiką biznesową (np. generowanie unikalnych kodów zaproszeń `invite_code`). Walidacja typów danych (Enum).
+* 📄 **[`lessons.test.js`](./server/tests/lessons.test.js)**
+    * **Opis:** Testy zagnieżdżonych zasobów i przesyłania danych formularzy (**Multipart/Form-data**).
 
 ## Jak uruchomić testy?
 
-Aby uruchomić wszystkie testy jednostkowe, wykonaj komendę w katalogu `client`:
+Aby uruchomić wszystkie testy jednostkowe lub integracyjne wykonaj komendę w katalogu `client` bądź `server`:
 
 ```bash
 cd client
 npm run test
 ```
+
+```bash
+cd server
+npm run test
+```
+
 ## Dokumentacja API
 Dokumentacja endpointów (**Swagger/OpenAPI**) jest generowana automatycznie i dostępna po uruchomieniu projektu pod adresem:
 **[http://localhost:5001/api-docs](http://localhost:5001/api-docs)**

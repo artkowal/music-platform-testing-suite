@@ -85,13 +85,17 @@ router.post('/', protect, async (req, res) => {
   const type = validTypes.includes(payment_type) ? payment_type : 'none';
   const amount = type !== 'none' && payment_amount ? parseFloat(payment_amount) : null;
 
-  try {
-    await dbPool.execute(
+try {
+    const [result] = await dbPool.execute(
       'INSERT INTO Workplaces (teacher_id, name, color_hex, payment_type, payment_amount) VALUES (?, ?, ?, ?, ?)',
       [req.user.user_id, name, color_hex || '#6366F1', type, amount]
     );
 
-    res.status(201).json({ success: true, message: 'Utworzono placówkę.' });
+    res.status(201).json({ 
+      success: true, 
+      message: 'Utworzono placówkę.', 
+      id: result.insertId 
+    });
   } catch (error) {
     console.error("Błąd tworzenia placówki:", error);
     res.status(500).json({ message: 'Wystąpił błąd serwera.' });
