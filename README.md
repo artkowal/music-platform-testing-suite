@@ -31,8 +31,35 @@ Projekt jest w pełni skonteneryzowany. Wymagane jest środowisko **Docker Deskt
     [http://localhost:5001](http://localhost:5001)
 
 ## Testy
-*(Ta sekcja zostanie uzupełniona w II etapie projektu)*
 
+**Testy Jednostkowe (Unit Tests)** 
+
+#### 1. Algorytmy i Funkcje Pomocnicze (Helpers)
+* 📄 **[`colors.test.ts`](./client/src/lib/colors.test.ts)**
+    * **Opis:** Weryfikacja czystych funkcji (Pure Functions) odpowiedzialnych za konwersję kolorów (Hex → HSL/RGBA).
+    * **Pokrycie:** Happy Path, Edge Cases (biel/czerń).
+
+#### 2. Logika Biznesowa (Core Domain)
+* 📄 **[`LessonTimer.test.ts`](./client/src/pages/dashboard/dashboardLessonPage/components/LessonTimer.test.ts)**
+    * **Opis:** Testy formatowania czasu w liczniku lekcji. Kluczowa funkcja dla UX ucznia.
+
+#### 3. Komponenty Interfejsu (UI Kit & Interaction)
+* 📄 **[`button.test.tsx`](./client/src/components/ui/button.test.tsx)**
+    * **Opis:** Testy interaktywności przycisków.
+* 📄 **[`input.test.tsx`](./client/src/components/ui/input.test.tsx)**
+    * **Opis:** Weryfikacja poprawnego renderowania atrybutów HTML i bezpieczeństwa.
+* 📄 **[`badge.test.tsx`](./client/src/components/ui/badge.test.tsx)**
+    * **Opis:** Testy warstwy prezentacyjnej i logiki warunkowej.
+
+
+## Jak uruchomić testy?
+
+Aby uruchomić wszystkie testy jednostkowe, wykonaj komendę w katalogu `client`:
+
+```bash
+cd client
+npm run test
+```
 ## Dokumentacja API
 Dokumentacja endpointów (**Swagger/OpenAPI**) jest generowana automatycznie i dostępna po uruchomieniu projektu pod adresem:
 **[http://localhost:5001/api-docs](http://localhost:5001/api-docs)**
